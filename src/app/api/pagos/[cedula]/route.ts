@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// 👇 Esta es la forma correcta de declarar el handler
 export async function GET(
   request: NextRequest,
   context: { params: { cedula: string } }
