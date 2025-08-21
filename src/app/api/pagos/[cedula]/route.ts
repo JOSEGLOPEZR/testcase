@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+interface Pago {
+  id: number
+  cedula: string
+  nombre: string
+  monto: number
+  programa: string
+  periodo: string
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: { cedula: string } }
@@ -12,11 +21,10 @@ export async function GET(
       return NextResponse.json({ error: 'Cédula inválida' }, { status: 400 })
     }
 
-    // Aunque better-sqlite3 es sincrónico, envolvemos esto en una promesa para usar await
-    const pagos = await new Promise<any[]>((resolve, reject) => {
+    const pagos: Pago[] = await new Promise((resolve, reject) => {
       try {
         const stmt = db.prepare('SELECT * FROM pagos WHERE cedula = ?')
-        const result = stmt.all(cedula)
+        const result = stmt.all(cedula) as Pago[]
         resolve(result)
       } catch (err) {
         reject(err)
