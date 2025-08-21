@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// 👇 Esta es la forma correcta de declarar el handler
 export async function GET(
   request: NextRequest,
   context: { params: { cedula: string } }
@@ -13,8 +12,16 @@ export async function GET(
       return NextResponse.json({ error: 'Cédula inválida' }, { status: 400 })
     }
 
-    const stmt = db.prepare('SELECT * FROM pagos WHERE cedula = ?')
-    const pagos = stmt.all(cedula)
+    // Aunque better-sqlite3 es sincrónico, envolvemos esto en una promesa para usar await
+    const pagos = await new Promise<any[]>((resolve, reject) => {
+      try {
+        const stmt = db.prepare('SELECT * FROM pagos WHERE cedula = ?')
+        const result = stmt.all(cedula)
+        resolve(result)
+      } catch (err) {
+        reject(err)
+      }
+    })
 
     if (pagos.length === 0) {
       return NextResponse.json({ error: 'No se encontraron pagos' }, { status: 404 })
