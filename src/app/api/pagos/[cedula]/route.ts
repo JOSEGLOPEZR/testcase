@@ -36,8 +36,18 @@ export async function GET(
     }
 
     return NextResponse.json({ pagos })
-  } catch (error) {
-    console.error('Error en la API:', error)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  } catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error('Error en la API:', error.message);
+  } else {
+    console.error('Error desconocido');
   }
+
+  return NextResponse.json(
+    { error: 'Error interno del servidor' },
+    { status: 500 }
+  );
+  
+}
+
 }
